@@ -168,7 +168,6 @@ final class App {
       this.checkLogs = s("check.logs");
       this.deleteOutput = s("delete.output");
       this.uploadJar = s("upload.jar");
-
       // AWS EMR Configuration
       this.clusterName = s("cluster.name", "My 6240 cluster");
       this.stepName = s("step.name", "My step");
