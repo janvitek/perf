@@ -1,0 +1,45 @@
+# Configuration parameters 
+
+# Number of Iterations per Configuration
+num = 3
+
+# Test Results File
+results = results.csv
+
+jar = job.jar
+
+# Local Hadoop Home
+hadoop.home = /usr/local/hadoop
+
+# AWS S3 Initialization
+region = us-east-1
+check.bucket = s3://mrclassvitek
+check.input = s3://mrclassvitek/years14-15
+check.logs = s3://mrclassvitek/logs
+delete.output = s3://mrclassvitek/output
+upload.jar = s3://mrclassvitek
+
+# AWS EMR Cluster Configuration
+cluster.name = MyCluster
+step.name = Step
+release.label = emr-4.2.0
+log.uri = s3://mrclassvitek/logs
+service.role = EMR_DefaultRole
+job.flow.role = EMR_EC2_DefaultRole
+ec2.key.name = jankey
+instance.count = 3
+keep.job.flow.alive = false
+master.instance.type = m3.xlarge
+slave.instance.type = m3.xlarge
+
+
+# name of the job (optional)
+name =
+# main class (required)
+main = median.java.SimpleMedian
+# input directory  (required)
+input = /Users/jv/mine/teach/6240/S16/data
+# output directory (optional)
+output =
+# list of argument strings (optional)
+arguments ="-query=AvgPrice"

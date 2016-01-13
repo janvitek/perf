@@ -1,11 +1,9 @@
 package neu.perf;
 
 import java.io.BufferedReader;
+import java.io.FileWriter;
 import java.io.IOException;
 import java.io.InputStreamReader;
-import java.io.PrintStream;
-import java.util.LinkedList;
-import java.util.List;
 
 import org.apache.commons.configuration.ConfigurationException;
 import org.apache.commons.configuration.PropertiesConfiguration;
@@ -34,7 +32,7 @@ final class App {
     for (int i = 0; i < app.conf.num; i++)
       app.job.run();
     app.job.finish();
-    app.output(app.job.getResults(), new PrintStream(app.conf.results));
+    app.output(app.job.getResults(), new FileWriter(app.conf.results, true));
   }
 
   private void initS3() throws Exception {
@@ -55,11 +53,15 @@ final class App {
     return s != null && s.length() > 0;
   }
 
-  private void output(Integer[] results, PrintStream stream) {
+  private void output(Integer[] results, FileWriter fw) {
     String res = conf.name + "," + conf.kind;
     for (Integer i : results)
       res += "," + i;
-    stream.print(res);
+    try {
+      fw.write(res + "\n");
+    } catch (IOException e) {
+      throw new Error(e);
+    }
     Log.p(res);
   }
 
@@ -155,12 +157,10 @@ final class App {
       } catch (ConfigurationException e) {
         throw new Error(e);
       }
-
       this.num = i("num", 1);
       this.results = s("results", "results.csv");
       this.jar = s("jar", "job.jar");
       this.hadoopHome = s("hadoop.home");
-
       // AWS S3 Initialization
       this.region = s("region", "us-east-1");
       this.checkBucket = s("check.bucket");

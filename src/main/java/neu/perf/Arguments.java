@@ -39,7 +39,7 @@ class Args {
 
   String getOpt(String opt, String defaultVal) {
     String res = getOpt(opt);
-    return (res == null) ? defaultVal : opt;
+    return (res == null) ? defaultVal : res;
   }
 
   int length() {
