@@ -160,7 +160,7 @@ public abstract class Job {
       for (StepSummary sum : res.getSteps()) {
         long time = sum.getStatus().getTimeline().getEndDateTime().getTime()
             - sum.getStatus().getTimeline().getStartDateTime().getTime();
-        seconds.add((int) time);
+        seconds.add((int) (time / 1000));
       }
       return seconds.toArray(new Integer[0]);
     }
