@@ -7,6 +7,8 @@ import java.io.InputStreamReader;
 
 import org.apache.commons.configuration.ConfigurationException;
 import org.apache.commons.configuration.PropertiesConfiguration;
+import org.apache.log4j.Level;
+import org.apache.log4j.Logger;
 
 /**
  * Submit a job for execution (possibly multiple times) and report the time
@@ -28,6 +30,7 @@ final class App {
   }
 
   public static void main(String[] args) throws Exception {
+    Logger.getRootLogger().setLevel(Level.OFF);
     App app = new App(new Args(args));
     for (int i = 0; i < app.conf.num; i++)
       app.job.run();
@@ -53,16 +56,17 @@ final class App {
     return s != null && s.length() > 0;
   }
 
-  private void output(Integer[] results, FileWriter fw) {
-    String res = conf.name + "," + conf.kind;
+  private void output(Integer[] results, FileWriter fw) throws IOException {
+    String brand = conf.name + "," + conf.kind;
+    String res = "";
     for (Integer i : results)
-      res += "," + i;
+      res += brand + "," + i + "\n";
     try {
-      fw.write(res + "\n");
+      fw.write(res);
     } catch (IOException e) {
       throw new Error(e);
     }
-    Log.p(res);
+    fw.close();
   }
 
   /**
@@ -100,7 +104,6 @@ final class App {
         this.bread = reader;
       }
 
-      @Override
       public void run() {
         try {
           String line;

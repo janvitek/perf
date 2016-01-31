@@ -4,9 +4,7 @@ import java.io.File;
 import java.util.LinkedList;
 import java.util.List;
 import java.util.Vector;
-
 import org.apache.commons.lang.ArrayUtils;
-
 import com.amazonaws.auth.profile.ProfileCredentialsProvider;
 import com.amazonaws.services.elasticmapreduce.AmazonElasticMapReduce;
 import com.amazonaws.services.elasticmapreduce.AmazonElasticMapReduceClient;
@@ -112,8 +110,8 @@ public abstract class Job {
   static class Cloud extends Job {
 
     AmazonElasticMapReduce client = new AmazonElasticMapReduceClient(new ProfileCredentialsProvider().getCredentials());
-    List<StepConfig> steps = new LinkedList<>();
-    int num = 0;
+    List<StepConfig> steps = new LinkedList<StepConfig>();
+    int num;
     String clusterId;
 
     Cloud(App.Conf conf) {
@@ -123,7 +121,7 @@ public abstract class Job {
     @Override
     public void run() throws Exception { // Hadoop program step.
       HadoopJarStepConfig hc = new HadoopJarStepConfig().withJar(conf.jar).withMainClass(conf.main)
-          .withArgs(concat(new String[] { "-input=" + conf.input, "-output=" + conf.output + "/out" + num }, conf.arguments));
+          .withArgs(concat(new String[] { "-input=" + conf.input, "-output=" + conf.output }, conf.arguments));
       steps.add(new StepConfig(conf.stepName + " " + num, hc));
       num++;
     }
@@ -140,10 +138,10 @@ public abstract class Job {
       RunJobFlowResult res = client.runJobFlow(request);
       clusterId = res.getJobFlowId();
 
-      DescribeClusterRequest describeClusterRequest = new DescribeClusterRequest().withClusterId(clusterId);
+      DescribeClusterRequest clusterReq = new DescribeClusterRequest().withClusterId(clusterId);
 
       while (true) {
-        DescribeClusterResult cres = client.describeCluster(describeClusterRequest);
+        DescribeClusterResult cres = client.describeCluster(clusterReq);
         String state = cres.getCluster().getStatus().getState();
         if (state.equals(ClusterState.TERMINATED.name()) || state.equals(ClusterState.TERMINATED_WITH_ERRORS.name())
             || state.equals(ClusterState.TERMINATING.name())) {
@@ -159,7 +157,6 @@ public abstract class Job {
     public Integer[] getResults() {
       ListStepsRequest req = new ListStepsRequest().withClusterId(clusterId);
       ListStepsResult res = client.listSteps(req);
-
       for (StepSummary sum : res.getSteps()) {
         long time = sum.getStatus().getTimeline().getEndDateTime().getTime()
             - sum.getStatus().getTimeline().getStartDateTime().getTime();
